@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { View, Text, StyleSheet, Alert, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, Alert, ScrollView, Dimensions } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+// import * as ScreenOrientation from 'expo-screen-orientation';
 
 import DefaultStyles from '../css/default-styles';
 
@@ -26,9 +27,12 @@ const renderListItem = (value, numOfRound) => {
 };
 
 function GamePage({ userChoice, onGameOver }) {
+    // ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT);
     const initialGuess = generateRandomBetween(1, 100, userChoice);
     const [currentGuess, setCurrentGuess] = useState(initialGuess);
     const [pastGuesses, setPastGuesses] = useState([initialGuess]);
+    const [availableDeviceWidth, setAvailableDeviceWidth] = useState(Dimensions.get('window').width);
+    const [availableDeviceHeight, setAvailableDeviceHeight] = useState(Dimensions.get('window').height);
     const currentLow = useRef(1);
     const currentHigh = useRef(100);
 
@@ -37,6 +41,17 @@ function GamePage({ userChoice, onGameOver }) {
             onGameOver(pastGuesses.length);
         }
     }, [currentGuess, userChoice, onGameOver]);
+
+    useEffect(() => {
+        const updateLayout = () => {
+            setAvailableDeviceWidth(Dimensions.get('window').width);
+            setAvailableDeviceHeight(Dimensions.get('window').height);
+        };
+        Dimensions.addEventListener('change', updateLayout);
+        return () => {
+            Dimensions.removeEventListener('change', updateLayout);
+        };
+    });
 
     const nextGuessHandler = (direction) => {
         if (
@@ -57,6 +72,33 @@ function GamePage({ userChoice, onGameOver }) {
         setPastGuesses([nextNumber, ...pastGuesses]);
     };
 
+    let listContainerStyle = styles.listContainer;
+    if (availableDeviceWidth < 350) {
+        listContainerStyle = styles.listContainerBig;
+    }
+
+    if (availableDeviceHeight < 500) {
+        return (
+            <View style={styles.screen}>
+                <Text style={DefaultStyles.title}>Opponent's Guess</Text>
+                <View style={styles.controls}>
+                    <MainButton style={styles.button} onPress={() => nextGuessHandler('lower')}>
+                        <Ionicons name={'md-remove'} size={24} color="white" />
+                    </MainButton>
+                    <NumberContainer>{currentGuess}</NumberContainer>
+                    <MainButton style={styles.button} onPress={() => nextGuessHandler('greater')}>
+                        <Ionicons name={'md-add'} size={24} color="white" />
+                    </MainButton>
+                </View>
+                <View style={listContainerStyle}>
+                    <ScrollView contentContainerStyle={styles.list}>
+                        {pastGuesses.map((guess, idx) => renderListItem(guess, pastGuesses.length - idx))}
+                    </ScrollView>
+                </View>
+            </View>
+        );
+    }
+
     return (
         <View style={styles.screen}>
             <Text style={DefaultStyles.title}>Opponent's Guess</Text>
@@ -69,7 +111,7 @@ function GamePage({ userChoice, onGameOver }) {
                     <Ionicons name={'md-add'} size={24} color="white" />
                 </MainButton>
             </Card>
-            <View style={styles.listContainer}>
+            <View style={listContainerStyle}>
                 <ScrollView contentContainerStyle={styles.list}>
                     {pastGuesses.map((guess, idx) => renderListItem(guess, pastGuesses.length - idx))}
                 </ScrollView>
@@ -86,12 +128,22 @@ const styles = StyleSheet.create({
     },
     buttonContainer: {
         flexDirection: 'row',
-        justifyContent: 'space-between',
-        marginTop: 20,
+        justifyContent: 'space-around',
+        marginTop: Dimensions.get('window').height > 600 ? 20 : 5,
         width: 400,
         maxWidth: '90%'
     },
+    controls: {
+        flexDirection: 'row',
+        justifyContent: 'space-around',
+        width: '80%',
+        alignItems: 'center'
+    },
     listContainer: {
+        flex: 1,
+        width: '60%'
+    },
+    listContainerBig: {
         flex: 1,
         width: '80%'
     },
@@ -108,7 +160,7 @@ const styles = StyleSheet.create({
         marginVertical: 10,
         backgroundColor: 'white',
         justifyContent: 'space-around',
-        width: '60%'
+        width: '100%'
     }
 });
 
