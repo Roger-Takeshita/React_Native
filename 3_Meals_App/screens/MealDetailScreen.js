@@ -1,21 +1,41 @@
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, Button } from 'react-native';
 
-function MealDetailScreen(props) {
+import { MEALS } from '../database/dummy-data';
+
+function MealDetailScreen({ navigation }) {
+    const mealId = navigation.getParam('mealId');
+
+    const selectedMeal = MEALS.find((meal) => meal.id === mealId);
+
     return (
         <View style={styles.screen}>
-            <Text style={styles.stylesText}>MealDetailScreen</Text>
+            <Text>{selectedMeal.title}</Text>
+            <Button
+                title="Go Back to Categories"
+                onPress={() => {
+                    navigation.popToTop();
+                }}
+            />
         </View>
     );
 }
+
+MealDetailScreen.navigationOptions = (navigationData) => {
+    const mealId = navigationData.navigation.getParam('mealId');
+    const selectedMeal = MEALS.find((meal) => meal.id === mealId);
+
+    return {
+        headerTitle: selectedMeal.title
+    };
+};
 
 const styles = StyleSheet.create({
     screen: {
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center'
-    },
-    stylesText: {}
+    }
 });
 
 export default MealDetailScreen;
