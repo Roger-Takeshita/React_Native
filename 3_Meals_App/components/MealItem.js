@@ -1,6 +1,8 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ImageBackground } from 'react-native';
 
+import CustomText from '../components/CustomText';
+
 function MealItem({ title, image, duration, complexity, affordability, onSelectMeal }) {
     return (
         <View style={styles.mealItem}>
@@ -16,9 +18,9 @@ function MealItem({ title, image, duration, complexity, affordability, onSelectM
                         </ImageBackground>
                     </View>
                     <View style={{ ...styles.mealRow, ...styles.mealDetail }}>
-                        <Text>{duration}m</Text>
-                        <Text>{complexity.toUpperCase()}</Text>
-                        <Text>{affordability.toUpperCase()}</Text>
+                        <CustomText>{duration}m</CustomText>
+                        <CustomText>{complexity.toUpperCase()}</CustomText>
+                        <CustomText>{affordability.toUpperCase()}</CustomText>
                     </View>
                 </View>
             </TouchableOpacity>
@@ -48,7 +50,8 @@ const styles = StyleSheet.create({
         width: '100%',
         backgroundColor: '#f5f5f5',
         borderRadius: 10,
-        overflow: 'hidden'
+        overflow: 'hidden',
+        marginVertical: 10
     },
     mealRow: {
         flexDirection: 'row'
