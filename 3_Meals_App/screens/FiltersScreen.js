@@ -1,7 +1,10 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, StyleSheet, Switch, Platform } from 'react-native';
 import { HeaderButtons, Item } from 'react-navigation-header-buttons';
+import { useDispatch } from 'react-redux';
+
 import Colors from '../css/Colors';
+import { setFilters } from '../store/actions/meals';
 
 import CustomHeaderButton from '../components/CustomHeaderButton';
 
@@ -24,21 +27,22 @@ function FiltersScreen({ navigation }) {
     const [isLactoseFree, setIsLactoseFree] = useState(false);
     const [isVegan, setIsVegan] = useState(false);
     const [isVegetarian, setIsVegetarian] = useState(false);
-
-    useEffect(() => {
-        navigation.setParams({ save: saveFilters });
-    }, [saveFilters]);
+    const dispatch = useDispatch();
 
     const saveFilters = useCallback(() => {
         const appliedFilters = {
             glutenFree: isGlutenFree,
             lactoseFree: isLactoseFree,
             vegan: isVegan,
-            isVegetarian: isVegetarian,
+            vegetarian: isVegetarian,
         };
 
-        console.log(appliedFilters);
-    }, [isGlutenFree, isLactoseFree, isVegan, isVegetarian]);
+        dispatch(setFilters(appliedFilters));
+    }, [isGlutenFree, isLactoseFree, isVegan, isVegetarian, dispatch]);
+
+    useEffect(() => {
+        navigation.setParams({ save: saveFilters });
+    }, [saveFilters]);
 
     return (
         <View style={styles.screen}>
@@ -84,7 +88,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     title: {
-        // fontFamily: 'open-sans-bold', // FIXME removed font familya
+        // fontFamily: 'open-sans-bold', // FIXME removed font family
         fontSize: 22,
         margin: 20,
         textAlign: 'center',

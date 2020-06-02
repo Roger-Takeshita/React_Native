@@ -16,45 +16,46 @@ import FavoritesScreen from '../screens/FavoritesScreen';
 import FiltersScreen from '../screens/FiltersScreen';
 
 const defaultStackNavOptions = {
-    // headerTitleStyle: {  // FIXME removed font family
-    //     fontFamily: 'open-sans-bold'
-    // },
+    headerTitleStyle: {
+        // FIXME removed font family
+        // fontFamily: 'open-sans-bold',
+    },
     headerStyle: {
-        backgroundColor: Platform.OS === 'android' ? Colors.primaryColor : ''
+        backgroundColor: Platform.OS === 'android' ? Colors.primaryColor : '',
     },
     headerTitleStyle: {
         // fontFamily: 'open-sans-bold'
     },
     headerBackTitleStyle: {
         // fontFamily: 'open-sans',
-        fontSize: 13
+        fontSize: 13,
     },
-    headerTintColor: Platform.OS === 'android' ? 'white' : Colors.primaryColor
+    headerTintColor: Platform.OS === 'android' ? 'white' : Colors.primaryColor,
 };
 
 const MealsNavigator = createStackNavigator(
     {
         Categories: CategoriesScreen,
         CategoryMeals: {
-            screen: CategoryMealsScreen
+            screen: CategoryMealsScreen,
         },
-        MealDetail: MealDetailScreen
+        MealDetail: MealDetailScreen,
     },
     {
         // initialRouteName: 'Categories',
-        defaultNavigationOptions: defaultStackNavOptions
-    }
+        defaultNavigationOptions: defaultStackNavOptions,
+    },
 );
 
 const FavoriteNavigator = createStackNavigator(
     {
         Favorites: FavoritesScreen,
-        MealDetail: MealDetailScreen
+        MealDetail: MealDetailScreen,
     },
     {
         // initialRouteName: 'Categories',
-        defaultNavigationOptions: defaultStackNavOptions
-    }
+        defaultNavigationOptions: defaultStackNavOptions,
+    },
 );
 
 const tabScreenConfig = {
@@ -66,8 +67,8 @@ const tabScreenConfig = {
             tabBarIcon: (tabInfo) => {
                 return <Ionicons name="ios-restaurant" size={25} color={tabInfo.tintColor} />;
             },
-            tabBarColor: Colors.primaryColor
-        }
+            tabBarColor: Colors.primaryColor,
+        },
     },
     Favorites: {
         screen: FavoriteNavigator,
@@ -78,16 +79,16 @@ const tabScreenConfig = {
             tabBarIcon: (tabInfo) => {
                 return <Ionicons name="ios-star" size={25} color={tabInfo.tintColor} />;
             },
-            tabBarColor: Colors.accentColor
-        }
-    }
+            tabBarColor: Colors.accentColor,
+        },
+    },
 };
 
 const MealsFavTabNavigator =
     Platform.OS === 'android'
         ? createMaterialBottomTabNavigator(tabScreenConfig, {
               activeColor: 'white',
-              shifting: true
+              shifting: true,
               //   barStyle: {
               //       backgroundColor: Colors.primaryColor
               //   }
@@ -97,17 +98,17 @@ const MealsFavTabNavigator =
                   //   fontFamily: 'open-sans-bold'
               },
               tabBarOptions: {
-                  activeTintColor: Colors.accentColor
-              }
+                  activeTintColor: Colors.accentColor,
+              },
           });
 
 const FiltersNavigator = createStackNavigator(
     {
-        Filters: FiltersScreen
+        Filters: FiltersScreen,
     },
     {
-        defaultNavigationOptions: defaultStackNavOptions
-    }
+        defaultNavigationOptions: defaultStackNavOptions,
+    },
 );
 
 const MainNavigator = createDrawerNavigator(
@@ -115,24 +116,24 @@ const MainNavigator = createDrawerNavigator(
         MealsFavs: {
             screen: MealsFavTabNavigator,
             navigationOptions: {
-                drawerLabel: 'My Meals'
-            }
+                drawerLabel: 'My Meals',
+            },
         },
         Filters: {
             screen: FiltersNavigator,
             navigationOptions: {
-                drawerLabel: 'My Filters'
-            }
-        }
+                drawerLabel: 'My Filters',
+            },
+        },
     },
     {
         contentOptions: {
-            activeTintColor: Colors.accentColor
+            activeTintColor: Colors.accentColor,
             // labelStyle: {
             //   fontFamily: 'open-sans-bold'
             // }
-        }
-    }
+        },
+    },
 );
 
 export default createAppContainer(MainNavigator);

@@ -33,17 +33,17 @@ const styles = StyleSheet.create({
         // fontFamily: 'open-sans-bold', // FIXME removed font family
         fontSize: 22,
         color: 'white',
-        textAlign: 'center'
+        textAlign: 'center',
     },
     titleContainer: {
         backgroundColor: 'rgba(0,0,0,0.5)',
         paddingVertical: 5,
-        paddingHorizontal: 12
+        paddingHorizontal: 12,
     },
     bgImage: {
         width: '100%',
         height: '100%',
-        justifyContent: 'flex-end'
+        justifyContent: 'flex-end',
     },
     mealItem: {
         height: 200,
@@ -51,21 +51,21 @@ const styles = StyleSheet.create({
         backgroundColor: '#f5f5f5',
         borderRadius: 10,
         overflow: 'hidden',
-        marginVertical: 10
+        marginVertical: 10,
     },
     mealRow: {
-        flexDirection: 'row'
+        flexDirection: 'row',
     },
     mealHeader: {
-        height: '85%'
+        height: '85%',
     },
     mealDetail: {
         paddingHorizontal: 10,
         justifyContent: 'space-between',
         alignItems: 'center',
         height: '15%',
-        backgroundColor: 'rgba(162,165,172,0.2)'
-    }
+        backgroundColor: 'rgba(162,165,172,0.2)',
+    },
 });
 
 export default MealItem;

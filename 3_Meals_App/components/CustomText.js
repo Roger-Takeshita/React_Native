@@ -7,8 +7,8 @@ function CustomText({ children }) {
 
 const styles = StyleSheet.create({
     text: {
-        // fontFamily: 'open-sans' // FIXME removed font family
-    }
+        // fontFamily: 'open-sans', // FIXME removed font family
+    },
 });
 
 export default CustomText;

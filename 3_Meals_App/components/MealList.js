@@ -1,10 +1,15 @@
 import React from 'react';
 import { View, StyleSheet, FlatList } from 'react-native';
+import { useSelector } from 'react-redux';
 
 import MealItem from '../components/MealItem';
 
 function MealList({ listData, navigation }) {
+    const favoriteMeals = useSelector((state) => state.meals.favoriteMeals);
+
     const renderMealItem = (itemData) => {
+        const isFavorite = favoriteMeals.find((meal) => meal.id === itemData.item.id);
+
         return (
             <MealItem
                 title={itemData.item.title}
@@ -16,8 +21,10 @@ function MealList({ listData, navigation }) {
                     navigation.navigate({
                         routeName: 'MealDetail',
                         params: {
-                            mealId: itemData.item.id
-                        }
+                            mealId: itemData.item.id,
+                            mealTitle: itemData.item.title,
+                            isFav: isFavorite,
+                        },
                     });
                 }}
             />
@@ -40,8 +47,8 @@ const styles = StyleSheet.create({
     list: {
         flex: 1,
         justifyContent: 'center',
-        alignItems: 'center'
-    }
+        alignItems: 'center',
+    },
 });
 
 export default MealList;
