@@ -30,7 +30,8 @@
 
     ```Bash
       npm i redux react-redux react-navigation  react-navigation-header-buttons react-navigation-stack
-      expo install react-native-gesture-handler react-native-reanimated react-native-screens react-native-safe-area-context @react-native-community/masked-view
+      expo install react-native-gesture-handler react-native-reanimated react-native-screens react-native-safe-area-context @react-native-community/masked-view expo-font
+      npm i --save-dev redux-devtools-extension
     ```
 
 <h2 id='folderfiles'>Folder and Files</h2>
@@ -40,7 +41,7 @@
 -   Create the following folder structure
 
     ```Bash
-      mkdir components css navigation screens screens/shop screens/user store store/actions store/reducers models database
+      mkdir components css navigation screens screens/shop screens/user store store/actions store/reducers models database assets/fonts
     ```
 
 -   Create the following files
@@ -178,11 +179,19 @@
         -   Combine the reducers with `combineReducers` and assign to a new variable (rootReducer)
             -   Create the store with `createStore` and pass the **rootReducer**
                 -   For last, wrap our main app with **Provider** component and connect store
+    -   Import **AppLoading** from `expo`
+        -   So we can await for the app to load all the dependencies (fonts)
+    -   Import custom Fonts with `expo-font`
+    -   Import **composeWithDevTools** from `redux-devtools-extension`
+        -   We use the `redux-devtools-extension` with **React Native Debugger**
 
     ```JavaScript
       import React from 'react';
       import { createStore, combineReducers } from 'redux';
       import { Provider } from 'react-redux';
+      import { AppLoading } from 'expo';
+      import * as Font from 'expo-font';
+      import { composeWithDevTools } from 'redux-devtools-extension'
 
       import productsReducer from './store/reducers/products';
       import ShopNavigator from './navigation/ShopNavigator';
@@ -191,9 +200,29 @@
           products: productsReducer,
       });
 
-      const store = createStore(rootReducer);
+      const store = createStore(rootReducer, composeWithDevTools());
+
+      const fetchFonts = () => {
+          return Font.loadAsync({
+              'open-sans': require('./assets/fonts/OpenSans-Regular.ttf'),
+              'open-sans-bold': require('./assets/fonts/OpenSans-Bold.ttf'),
+          });
+      };
 
       export default function App() {
+          const [fontLoaded, setFontLoaded] = useState(false);
+
+          if (!fontLoaded) {
+              return (
+                  <AppLoading
+                      startAsync={fetchFonts}
+                      onFinish={() => {
+                          setFontLoaded(true);
+                      }}
+                  />
+              );
+          }
+
           return (
               <Provider store={store}>
                   <ShopNavigator />
@@ -217,6 +246,8 @@
                 -   This is used for old versions of react where we need to extract the unique id
                 -   The newer version we don't need to that anymore
             -   3rd - `renderItem{(itemData) => ...}`
+    -   Add **navigationOptions** to the `ProductsOverviewScreen` component
+        -   Where we can define the `headerTitle` for this specific screen
 
     ```JavaScript
       import React from 'react';
@@ -234,6 +265,10 @@
               />
           );
       }
+
+      ProductsOverviewScreen.navigationOptions = {
+          headerTitle: 'All Products',
+      };
 
       export default ProductsOverviewScreen;
     ```
@@ -255,6 +290,7 @@
             -   the first argument is an object where we define all the screen names
                 -   We could also define the style here, for that specific component, but for now we are going to use the default options
             -   the second argument is an object where we can define our **defaultNavigationOptions**
+                -   Where we can define custom styles for our screens
         -   For last we create our app using **createAppContainer** and pass our `ProductsNavigator`
 
     ```JavaScript
@@ -274,6 +310,12 @@
               defaultNavigationOptions: {
                   headerStyle: {
                       backgroundColor: Platform.OS === 'android' ? Colors.primary : '',
+                  },
+                  headerTitleStyle: {
+                      fontFamily: 'open-sans-bold',
+                  },
+                  headerBackTitleStyle: {
+                      fontFamily: 'open-sans',
                   },
                   headerTintColor: Platform.OS === 'android' ? 'white' : Colors.primary,
               },
