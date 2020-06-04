@@ -1,4 +1,4 @@
-import { ADD_TO_CART } from '../actions/cart';
+import { ADD_TO_CART, REMOVE_FROM_CART } from '../actions/cart';
 import CartItem from '../../models/cartItem';
 
 const initialState = {
@@ -9,7 +9,7 @@ const initialState = {
 const cartReducer = (state = initialState, action) => {
     switch (action.type) {
         case ADD_TO_CART:
-            const addedProduct = action.payload;
+            const addedProduct = action.product;
             const productPrice = addedProduct.price;
             const productTitle = addedProduct.title;
             let updatedOrNewCartItem;
@@ -17,8 +17,8 @@ const cartReducer = (state = initialState, action) => {
             if (state.items[addedProduct.id]) {
                 updatedOrNewCartItem = new CartItem(
                     state.items[addedProduct.id].quantity + 1,
-                    productTitle,
                     productPrice,
+                    productTitle,
                     state.items[addedProduct.id].sum + productPrice,
                 );
             } else {
@@ -31,6 +31,26 @@ const cartReducer = (state = initialState, action) => {
                     [addedProduct.id]: updatedOrNewCartItem,
                 },
                 totalAmount: state.totalAmount + productPrice,
+            };
+        case REMOVE_FROM_CART:
+            const selectedCartItem = state.items[action.productId];
+            let updatedCartItems;
+            if (selectedCartItem.quantity > 1) {
+                const updatedCartItem = new CartItem(
+                    selectedCartItem.quantity - 1,
+                    selectedCartItem.productPrice,
+                    selectedCartItem.productTitle,
+                    selectedCartItem.sum - selectedCartItem.productPrice,
+                );
+                updatedCartItems = { ...state.items, [action.productId]: updatedCartItem };
+            } else {
+                updatedCartItems = { ...state.items };
+                delete updatedCartItems[action.productId];
+            }
+            return {
+                ...state,
+                items: updatedCartItems,
+                totalAmount: state.totalAmount - selectedCartItem.productPrice,
             };
         default:
             return state;
