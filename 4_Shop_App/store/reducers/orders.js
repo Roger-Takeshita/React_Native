@@ -6,7 +6,7 @@ const initialState = {
 };
 
 const ordersReducer = (state = initialState, action) => {
-    switch (action.state) {
+    switch (action.type) {
         case ADD_ORDER:
             const newOrder = new Order(
                 new Date().toString(),

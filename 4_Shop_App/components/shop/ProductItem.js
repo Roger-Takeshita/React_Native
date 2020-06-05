@@ -50,14 +50,17 @@ const styles = StyleSheet.create({
             width: 0,
             height: 2,
         },
+        shadowRadius: 8,
         elevation: 5,
         borderRadius: 10,
         backgroundColor: 'white',
         height: 300,
         margin: 20,
+    },
+    touchable: {
+        borderRadius: 10,
         overflow: 'hidden',
     },
-    touchable: {},
     imageContainer: {
         width: '100%',
         height: '60%',
@@ -80,7 +83,7 @@ const styles = StyleSheet.create({
         marginVertical: 2,
     },
     price: {
-        fontFamily: 'open-sans-bold',
+        fontFamily: 'open-sans',
         fontSize: 14,
         color: '#888',
     },

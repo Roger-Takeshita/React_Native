@@ -41,7 +41,7 @@ const styles = StyleSheet.create({
         fontSize: 16,
     },
     mainText: {
-        fontFamily: 'open-sans',
+        fontFamily: 'open-sans-bold',
         fontSize: 16,
     },
     deleteButton: {

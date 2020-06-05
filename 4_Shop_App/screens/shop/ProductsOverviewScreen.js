@@ -36,6 +36,15 @@ function ProductsOverviewScreen({ navigation }) {
 ProductsOverviewScreen.navigationOptions = (data) => {
     return {
         headerTitle: 'All Products',
+        headerLeft: () => (
+            <HeaderButtons HeaderButtonComponent={CustomHeaderButton}>
+                <Item
+                    title="Menu"
+                    iconName={Platform.OS === 'android' ? 'md-menu' : 'ios-menu'}
+                    onPress={() => data.navigation.toggleDrawer()}
+                />
+            </HeaderButtons>
+        ),
         headerRight: () => (
             <HeaderButtons HeaderButtonComponent={CustomHeaderButton}>
                 <Item

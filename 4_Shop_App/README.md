@@ -29,7 +29,7 @@
 -   Install
 
     ```Bash
-      npm i redux react-redux react-navigation  react-navigation-header-buttons react-navigation-stack @expo/vector-icons
+      npm i redux react-redux react-navigation  react-navigation-header-buttons react-navigation-stack @expo/vector-icons react-navigation-drawer
       expo install react-native-gesture-handler react-native-reanimated react-native-screens react-native-safe-area-context @react-native-community/masked-view expo-font
       npm i --save-dev redux-devtools-extension
     ```
