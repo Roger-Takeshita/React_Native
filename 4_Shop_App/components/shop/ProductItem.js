@@ -4,15 +4,14 @@ import {
     Text,
     StyleSheet,
     Image,
-    Button,
     TouchableOpacity,
     TouchableNativeFeedback,
     Platform,
 } from 'react-native';
 
-import Colors from '../../css/Colors';
+import Card from '../UI/Card';
 
-function ProductItem({ imageUrl, title, price, onViewDetail, onAddToCart }) {
+function ProductItem({ imageUrl, title, price, onSelect, onAddToCart, children }) {
     let TouchableCmp = TouchableOpacity;
 
     if (Platform.OS === 'android' && Platform.Version >= 21) {
@@ -20,9 +19,9 @@ function ProductItem({ imageUrl, title, price, onViewDetail, onAddToCart }) {
     }
 
     return (
-        <View style={styles.product}>
+        <Card style={styles.product}>
             <View style={styles.touchable}>
-                <TouchableCmp onPress={onViewDetail} userForeground>
+                <TouchableCmp onPress={onSelect} userForeground>
                     <View>
                         <View style={styles.imageContainer}>
                             <Image source={{ uri: imageUrl }} style={styles.image} />
@@ -31,29 +30,16 @@ function ProductItem({ imageUrl, title, price, onViewDetail, onAddToCart }) {
                             <Text style={styles.title}>{title}</Text>
                             <Text style={styles.price}>${price.toFixed(2)}</Text>
                         </View>
-                        <View style={styles.actions}>
-                            <Button color={Colors.primary} title="View Details" onPress={onViewDetail} />
-                            <Button color={Colors.primary} title="To Cart" onPress={onAddToCart} />
-                        </View>
+                        <View style={styles.actions}>{children}</View>
                     </View>
                 </TouchableCmp>
             </View>
-        </View>
+        </Card>
     );
 }
 
 const styles = StyleSheet.create({
     product: {
-        shadowColor: 'black',
-        shadowOpacity: 0.26,
-        shadowOffset: {
-            width: 0,
-            height: 2,
-        },
-        shadowRadius: 8,
-        elevation: 5,
-        borderRadius: 10,
-        backgroundColor: 'white',
         height: 300,
         margin: 20,
     },
@@ -74,7 +60,7 @@ const styles = StyleSheet.create({
     },
     details: {
         alignItems: 'center',
-        height: '15%',
+        height: '17%',
         padding: 10,
     },
     title: {
@@ -91,7 +77,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        height: '25%',
+        height: '23%',
         paddingHorizontal: 20,
     },
 });

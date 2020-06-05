@@ -29,10 +29,23 @@
 -   Install
 
     ```Bash
-      npm i redux react-redux react-navigation  react-navigation-header-buttons react-navigation-stack @expo/vector-icons react-navigation-drawer
-      expo install react-native-gesture-handler react-native-reanimated react-native-screens react-native-safe-area-context @react-native-community/masked-view expo-font
+      npm i redux react-redux
+        react-navigation
+        react-navigation-header-buttons
+        react-navigation-stack
+        @expo/vector-icons
+        react-navigation-drawer
+        moment
+      expo install react-native-gesture-handler
+        react-native-reanimated
+        react-native-screens
+        react-native-safe-area-context
+        @react-native-community/masked-view
+        expo-font
       npm i --save-dev redux-devtools-extension
     ```
+
+    -   `moment` so we can use a nice date format like `June 5, 2020, 12:15 PM`, that is not supported by the android engine.
 
 <h2 id='folderfiles'>Folder and Files</h2>
 
