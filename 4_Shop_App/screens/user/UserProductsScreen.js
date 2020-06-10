@@ -22,7 +22,7 @@ function UserProductsScreen({ navigation }) {
         Alert.alert('Are you sure?', 'Do you really want to delete this item?', [
             { text: 'No', style: 'default' },
             {
-                text: 'Yest',
+                text: 'Yes',
                 style: 'destructive',
                 onPress: () => dispatch(productsActions.deleteProduct(id)),
             },

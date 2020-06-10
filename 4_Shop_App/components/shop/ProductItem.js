@@ -28,7 +28,7 @@ function ProductItem({ imageUrl, title, price, onSelect, onAddToCart, children }
                         </View>
                         <View style={styles.details}>
                             <Text style={styles.title}>{title}</Text>
-                            <Text style={styles.price}>${price.toFixed(2)}</Text>
+                            <Text style={styles.price}>${price ? price.toFixed(2) : 0}</Text>
                         </View>
                         <View style={styles.actions}>{children}</View>
                     </View>

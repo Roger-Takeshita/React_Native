@@ -13,6 +13,11 @@
         -   [Create Redux Store](#createstore)
     -   [Screens - ProductsOverviewScreen](#productsoverviewscreen)
     -   [Shop Navigator](#shopnavigator)
+-   [Redux Thunk](#reduxthunk)
+    -   [Package](#thunkpackage)
+    -   [Config Redux Thunk](#configthunk)
+        -   [Config - App.js](#appjs)
+        -   [Use Redux Thunk - Actions](#usethunk)
 
 <h1 id='shopapp'>Shop App</h1>
 
@@ -336,4 +341,137 @@
       );
 
       export default createAppContainer(ProductsNavigator);
+    ```
+
+<h1 id='reduxthunk'>Redux Thunk</h1>
+
+<h2 id='thunkpackage'>Package</h2>
+
+[Go Back to Summary](#summary)
+
+```Bash
+  npm i redux-thunk
+```
+
+<h2 id='configthunk'>Config Redux Thunk</h2>
+
+<h3 id='appjs'>Config - App.js</h3>
+
+[Go Back to Summary](#summary)
+
+-   In `App.js`
+
+    -   Import ReduxThunk from `redux-thunk`
+        -   **ReduxThunk** can be any name
+    -   Import **applyMiddleware** from `redux`
+        -   In **createStore** pass the **applyMiddleware** as a second argument and pass it **ReduxThunk**
+
+    ```JavaScript
+      import React, { useState } from 'react';
+      import { createStore, combineReducers, applyMiddleware } from 'redux';
+      import { Provider } from 'react-redux';
+      import { AppLoading } from 'expo';
+      import * as Font from 'expo-font';
+      import ReduxThunk from 'redux-thunk';
+
+      import productsReducer from './store/reducers/products';
+      import cartReducer from './store/reducers/cart';
+      import ordersReducer from './store/reducers/orders';
+      import ShopNavigator from './navigation/ShopNavigator';
+
+      const rootReducer = combineReducers({
+          ...
+      });
+
+      const store = createStore(rootReducer, applyMiddleware(ReduxThunk));
+
+      const fetchFonts = () => {
+          ...
+      };
+
+      export default function App() {
+          ...
+      }
+    ```
+
+<h3 id='usethunk'>Use Redux Thunk - Actions</h3>
+
+[Go Back to Summary](#summary)
+
+-   in `store/actions/orders.js`
+-   Redux thunk already gives us a **dispatch** function by default
+-   We can use the dispatch function to update our store after executing an async code (api calls)
+
+    ```JavaScript
+
+      import Order from '../../models/order';
+      export const ADD_ORDER = 'ADD_ORDER';
+      export const SET_ORDERS = 'SET_ORDERS';
+
+      export const fetchOrders = () => {
+          try {
+              return async (dispatch) => {
+                  const response = await fetch('https://react-native-7b3b3.firebaseio.com/orders/u1.json');
+
+                  if (!response.ok) {
+                      throw new Error('Something went wrong!');
+                  }
+
+                  const resData = await response.json();
+                  const loadedOrders = [];
+
+                  for (const key in resData) {
+                      loadedOrders.push(
+                          new Order(
+                              key,
+                              resData[key].cartItems,
+                              resData[key].totalAmount,
+                              new Date(resData[key].date),
+                          ),
+                      );
+                  }
+
+                  dispatch({
+                      type: SET_ORDERS,
+                      orders: loadedOrders,
+                  });
+              };
+          } catch (error) {
+              throw error;
+          }
+      };
+
+      export const addOrder = (cartItems, totalAmount) => {
+          try {
+              const date = new Date().toISOString();
+
+              return async (dispatch) => {
+                  const response = await fetch('https://react-native-7b3b3.firebaseio.com/orders/u1.json', {
+                      method: 'POST',
+                      headers: {
+                          'Content-Type': 'application/json',
+                      },
+                      body: JSON.stringify({ cartItems, totalAmount, date }),
+                  });
+
+                  if (!response.ok) {
+                      throw new Error('Something went wrong!');
+                  }
+
+                  const resData = await response.json();
+
+                  dispatch({
+                      type: ADD_ORDER,
+                      orderData: {
+                          id: resData.name,
+                          items: cartItems,
+                          amount: totalAmount,
+                          date,
+                      },
+                  });
+              };
+          } catch (error) {
+              throw error;
+          }
+      };
     ```

@@ -1,11 +1,20 @@
-import React, { useEffect, useCallback, useReducer } from 'react';
-import { View, StyleSheet, ScrollView, Platform, Alert, KeyboardAvoidingView } from 'react-native';
+import React, { useState, useEffect, useCallback, useReducer } from 'react';
+import {
+    View,
+    StyleSheet,
+    ScrollView,
+    Platform,
+    Alert,
+    KeyboardAvoidingView,
+    ActivityIndicator,
+} from 'react-native';
 import { HeaderButtons, Item } from 'react-navigation-header-buttons';
 import { useSelector, useDispatch } from 'react-redux';
 
 import Input from '../../components/UI/Input';
 import CustomHeaderButton from '../../components/UI/CustomHeaderButton';
 import * as productsActions from '../../store/actions/products';
+import Colors from '../../css/Colors';
 
 const FORM_INPUT_UPDATE = 'FORM_INPUT_UPDATE';
 
@@ -37,6 +46,9 @@ const formReducer = (state, action) => {
 };
 
 function EditProductScreen({ navigation }) {
+    const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState();
+
     const productId = navigation.getParam('productId');
     const editedProduct = useSelector((state) =>
         state.products.userProducts.find((prod) => prod.id === productId),
@@ -59,30 +71,46 @@ function EditProductScreen({ navigation }) {
         formIsValid: editedProduct ? true : false,
     });
 
-    const submitHandler = useCallback(() => {
+    useEffect(() => {
+        if (error) {
+            Alert.alert('An error occurred!', error, [{ text: 'Okay' }]);
+        }
+    }, [error]);
+
+    const submitHandler = useCallback(async () => {
         if (!formState.formIsValid) {
-            Alert.alert('Wrong input!', 'Please check the error on the form', [{ text: 'Ok' }]);
+            Alert.alert('Wrong input!', 'Please check the errors in the form.', [{ text: 'Okay' }]);
             return;
         }
-        if (editedProduct) {
-            dispatch(
-                productsActions.updateProduct(
-                    productId,
-                    formState.inputValues.title,
-                    formState.inputValues.description,
-                    formState.inputValues.imageUrl,
-                ),
-            );
-        } else {
-            dispatch(
-                productsActions.createProduct(
-                    formState.inputValues.title,
-                    formState.inputValues.description,
-                    formState.inputValues.imageUrl,
-                    +formState.inputValues.price,
-                ),
-            );
+
+        setError(null);
+        setIsLoading(true);
+
+        try {
+            if (editedProduct) {
+                await dispatch(
+                    productsActions.updateProduct(
+                        productId,
+                        formState.inputValues.title,
+                        formState.inputValues.description,
+                        formState.inputValues.imageUrl,
+                    ),
+                );
+            } else {
+                await dispatch(
+                    productsActions.createProduct(
+                        formState.inputValues.title,
+                        formState.inputValues.description,
+                        formState.inputValues.imageUrl,
+                        +formState.inputValues.price,
+                    ),
+                );
+            }
+        } catch (error) {
+            setError(error.message);
         }
+
+        setIsLoading(false);
         navigation.goBack();
     }, [dispatch, productId, formState]);
 
@@ -94,16 +122,24 @@ function EditProductScreen({ navigation }) {
         (inputIdentifier, inputValue, inputValidity) => {
             dispatchFormState({
                 type: FORM_INPUT_UPDATE,
+                input: inputIdentifier,
                 value: inputValue,
                 isValid: inputValidity,
-                input: inputIdentifier,
             });
         },
         [dispatchFormState],
     );
 
+    if (isLoading) {
+        return (
+            <View style={styles.centered}>
+                <ActivityIndicator size="large" color={Colors.primary} />
+            </View>
+        );
+    }
+
     return (
-        <KeyboardAvoidingView style={{ flex: 1 }} behavior="padding" keyboardVerticalOffset={10}>
+        <KeyboardAvoidingView style={{ flex: 1 }} behavior="padding" keyboardVerticalOffset={30}>
             <ScrollView>
                 <View style={styles.form}>
                     <Input
@@ -122,7 +158,7 @@ function EditProductScreen({ navigation }) {
                     <Input
                         id="imageUrl"
                         label="Image Url"
-                        errorText="Please enter a valid url!"
+                        errorText="Please enter a valid image url!"
                         keyboardType="default"
                         returnKeyType="next"
                         onInputChange={inputChangeHandler}
@@ -148,10 +184,10 @@ function EditProductScreen({ navigation }) {
                         errorText="Please enter a valid description!"
                         keyboardType="default"
                         autoCapitalize="sentences"
-                        onInputChange={inputChangeHandler}
                         autoCorrect
                         multiline
                         numberOfLines={3}
+                        onInputChange={inputChangeHandler}
                         initialValue={editedProduct ? editedProduct.description : ''}
                         initiallyValid={!!editedProduct}
                         required
@@ -183,6 +219,11 @@ EditProductScreen.navigationOptions = (data) => {
 const styles = StyleSheet.create({
     form: {
         margin: 20,
+    },
+    centered: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
     },
 });
 

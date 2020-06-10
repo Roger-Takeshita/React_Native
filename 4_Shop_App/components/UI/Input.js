@@ -76,7 +76,7 @@ function Input(props) {
                 style={styles.input}
                 value={inputState.value}
                 onChangeText={textChangeHandler}
-                onBlur={lostFocusHandler}
+                onChange={lostFocusHandler}
             />
             {!inputState.isValid && inputState.touched && (
                 <View style={styles.errorContainer}>

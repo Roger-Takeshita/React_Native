@@ -1,5 +1,5 @@
-import React from 'react';
-import { View, Text, StyleSheet, FlatList, Button } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, StyleSheet, FlatList, Button, ActivityIndicator } from 'react-native';
 import { useSelector, useDispatch } from 'react-redux';
 
 import Colors from '../../css/Colors';
@@ -9,6 +9,8 @@ import * as ordersActions from '../../store/actions/orders';
 import Card from '../../components/UI/Card';
 
 function CartScreen(props) {
+    const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState();
     const cartTotalAmount = useSelector((state) => state.cart.totalAmount);
     const cartItems = useSelector((state) => {
         const transformedCartItems = [];
@@ -25,6 +27,29 @@ function CartScreen(props) {
     });
     const dispatch = useDispatch();
 
+    const sendOrderHandler = async () => {
+        setError(null);
+        setIsLoading(true);
+
+        try {
+            await dispatch(ordersActions.addOrder(cartItems, cartTotalAmount));
+        } catch (error) {
+            console.log(error.message);
+            setError(error.message);
+        }
+
+        setIsLoading(false);
+    };
+
+    if (error) {
+        return (
+            <View style={styles.centered}>
+                <Text>An error ocurred!</Text>
+                <Button title="Try again" onPress={sendOrderHandler} color={Colors.primary} />
+            </View>
+        );
+    }
+
     return (
         <View style={styles.screen}>
             <Card style={styles.summary}>
@@ -32,12 +57,16 @@ function CartScreen(props) {
                     Total:{' '}
                     <Text style={styles.amount}>${Math.round((cartTotalAmount.toFixed(2) * 100) / 100)}</Text>
                 </Text>
-                <Button
-                    title="Order Now"
-                    color={Colors.accent}
-                    disabled={cartItems.length === 0}
-                    onPress={() => dispatch(ordersActions.addOrder(cartItems, cartTotalAmount))}
-                />
+                {isLoading ? (
+                    <ActivityIndicator size="small" color={Colors.primary} />
+                ) : (
+                    <Button
+                        title="Order Now"
+                        color={Colors.accent}
+                        disabled={cartItems.length === 0}
+                        onPress={sendOrderHandler}
+                    />
+                )}
             </Card>
             <FlatList
                 data={cartItems}
@@ -79,6 +108,11 @@ const styles = StyleSheet.create({
     },
     amount: {
         color: Colors.primary,
+    },
+    centered: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
     },
 });
 
