@@ -3,9 +3,11 @@ export const ADD_ORDER = 'ADD_ORDER';
 export const SET_ORDERS = 'SET_ORDERS';
 
 export const fetchOrders = () => {
-    try {
-        return async (dispatch) => {
-            const response = await fetch('https://react-native-7b3b3.firebaseio.com/orders/u1.json');
+    return async (dispatch, getState) => {
+        const userId = getState().auth.userId;
+
+        try {
+            const response = await fetch(`https://react-native-7b3b3.firebaseio.com/orders/${userId}.json?`);
 
             if (!response.ok) {
                 throw new Error('Something went wrong!');
@@ -29,24 +31,33 @@ export const fetchOrders = () => {
                 type: SET_ORDERS,
                 orders: loadedOrders,
             });
-        };
-    } catch (error) {
-        throw error;
-    }
+        } catch (error) {
+            throw error;
+        }
+    };
 };
 
 export const addOrder = (cartItems, totalAmount) => {
-    try {
+    return async (dispatch, getState) => {
+        const token = getState().auth.token;
+        const userId = getState().auth.userId;
         const date = new Date().toISOString();
 
-        return async (dispatch) => {
-            const response = await fetch('https://react-native-7b3b3.firebaseio.com/orders/u1.json', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
+        try {
+            const response = await fetch(
+                `https://react-native-7b3b3.firebaseio.com/orders/${userId}.json?auth=${token}`,
+                {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        cartItems,
+                        totalAmount,
+                        date,
+                    }),
                 },
-                body: JSON.stringify({ cartItems, totalAmount, date }),
-            });
+            );
 
             if (!response.ok) {
                 throw new Error('Something went wrong!');
@@ -63,8 +74,8 @@ export const addOrder = (cartItems, totalAmount) => {
                     date,
                 },
             });
-        };
-    } catch (error) {
-        throw error;
-    }
+        } catch (error) {
+            throw error;
+        }
+    };
 };

@@ -18,6 +18,10 @@
     -   [Config Redux Thunk](#configthunk)
         -   [Config - App.js](#appjs)
         -   [Use Redux Thunk - Actions](#usethunk)
+-   [Authentication](#auth)
+    -   [When The App Launches](#whenapplaunches)
+        -   [Authentication Screen](#authscreen)
+    -   [Auth Config](#actionauth)
 
 <h1 id='shopapp'>Shop App</h1>
 
@@ -475,3 +479,429 @@
           }
       };
     ```
+
+<h1 id='auth'>Authentication</h1>
+
+<h2 id='whenapplaunches'>When The App Launches</h2>
+
+[Go Back to Summary](#summary)
+
+-   In `navigation/ShopNavigation`
+
+    -   Import **createSwitchNavigator** from `react-navigation`
+        -   This function will help use to authenticate the user with our backend
+        -   This screen has a special behavior that it doesn't allow us to go back to the log in screen if you just logged in
+    -   First we need to create a new stack navigator to our auth screen
+    -   Then create a new navigator (`MainNavigator`) using `createSwitchNavigator`
+        -   `createSwitchNavigator` takes an object, and there we bind our:
+            -   **Auth** screen / auth stack
+            -   **Shop** shop stack
+        -   Auth screen will be rendered as our first screen
+    -   Update our **createAppContainer** to use our new **MainNavigator** stack
+
+        ```JavaScript
+            import React from 'react';
+            import { createStackNavigator } from 'react-navigation-stack';
+            import { createAppContainer, createSwitchNavigator } from 'react-navigation';
+            import { createDrawerNavigator } from 'react-navigation-drawer';
+            import { Platform } from 'react-native';
+            import { Ionicons } from '@expo/vector-icons';
+
+            import Colors from '../css/Colors';
+
+            import ProductsOverviewScreen from '../screens/shop/ProductsOverviewScreen';
+            import ProductDetailsScreen from '../screens/shop/ProductDetailsScreen';
+            import CartScreen from '../screens/shop/CartScreen';
+            import OrdersScreen from '../screens/shop/OrdersScreen';
+            import UserProductsScreen from '../screens/user/UserProductsScreen';
+            import EditProductScreen from '../screens/user/EditProductScreen';
+            import AuthScreen from "../screens/user/AuthScreen";
+
+            const defaultNavOptions = {
+                ...
+            };
+
+            const ProductsNavigator = createStackNavigator(
+                ...
+            );
+
+            const OrdersNavigator = createStackNavigator(
+                ...
+            );
+
+            const AdminNavigator = createStackNavigator(
+                ...
+            );
+
+            const AuthNavigator = createStackNavigator({
+                Auth: AuthScreen
+            })
+
+            const ShopNavigator = createDrawerNavigator(
+                ...
+            );
+
+            const MainNavigator = createSwitchNavigator({
+                Auth: AuthNavigator,
+                Shop: ShopNavigator
+            })
+
+            export default createAppContainer(MainNavigator);
+        ```
+
+<h3 id='authscreen'>Authentication Screen</h3>
+
+[Go Back to Summary](#summary)
+
+-   create a new file `screens/users/AuthScreen.js` to handle handle the login/sign up form
+
+    -   After a successful login, the user will be redirect to the "Shop" screen
+
+        ```JavaScript
+            import React, { useState, useReducer, useCallback, useEffect } from 'react';
+            import {
+                View,
+                StyleSheet,
+                ScrollView,
+                KeyboardAvoidingView,
+                Button,
+                ActivityIndicator,
+                Alert,
+            } from 'react-native';
+            import { LinearGradient } from 'expo-linear-gradient';
+            import { useDispatch } from 'react-redux';
+
+            import Input from '../../components/UI/Input';
+            import Card from '../../components/UI/Card';
+            import Colors from '../../css/Colors';
+            import * as authActions from '../../store/actions/auth';
+
+            const FORM_INPUT_UPDATE = 'FORM_INPUT_UPDATE';
+
+            const formReducer = (state, action) => {
+                switch (action.type) {
+                    case FORM_INPUT_UPDATE:
+                        const updatedValues = {
+                            ...state.inputValues,
+                            [action.input]: action.value,
+                        };
+                        const updatedValidities = {
+                            ...state.inputValidities,
+                            [action.input]: action.isValid,
+                        };
+                        let updatedFormIsValid = true;
+
+                        for (const key in updatedValidities) {
+                            updatedFormIsValid = updatedFormIsValid && updatedValidities[key];
+                        }
+
+                        return {
+                            formIsValid: updatedFormIsValid,
+                            inputValidities: updatedValidities,
+                            inputValues: updatedValues,
+                        };
+                    default:
+                        return state;
+                }
+            };
+
+            function AuthScreen({ navigation }) {
+                const [isSignup, setIsSignup] = useState(false);
+                const [isLoading, setIsLoading] = useState(false);
+                const [error, setError] = useState();
+                const dispatch = useDispatch();
+
+                const [formState, dispatchFormState] = useReducer(formReducer, {
+                    inputValues: {
+                        email: '',
+                        password: '',
+                    },
+                    inputValidities: {
+                        email: false,
+                        password: false,
+                    },
+                    formIsValid: false,
+                });
+
+                useEffect(() => {
+                    if (error) {
+                        Alert.alert('An Error Ocurred!', error, [{ text: 'Ok' }]);
+                    }
+                }, [error]);
+
+                const authHandler = async () => {
+                    let action;
+
+                    if (isSignup) {
+                        action = authActions.signup(formState.inputValues.email, formState.inputValues.password);
+                    } else {
+                        action = authActions.login(formState.inputValues.email, formState.inputValues.password);
+                    }
+
+                    setError(null);
+                    setIsLoading(true);
+
+                    try {
+                        await dispatch(action);
+                        navigation.navigate('Shop');
+                    } catch (error) {
+                        setError(error.message);
+                        setIsLoading(false);
+                    }
+                };
+
+                const inputChangeHandler = useCallback(
+                    (inputIdentifier, inputValue, inputValidity) => {
+                        dispatchFormState({
+                            type: FORM_INPUT_UPDATE,
+                            input: inputIdentifier,
+                            value: inputValue,
+                            isValid: inputValidity,
+                        });
+                    },
+                    [dispatchFormState],
+                );
+
+                return (
+                    <KeyboardAvoidingView behavior="padding" style={styles.screen}>
+                        <LinearGradient colors={['#ffedff', '#ffe3ff']} style={styles.gradient}>
+                            <Card style={styles.authContainer}>
+                                <ScrollView>
+                                    <Input
+                                        id="email"
+                                        label="E-Mail"
+                                        keyboardType="email-address"
+                                        required
+                                        email
+                                        autoCapitalize="none"
+                                        errorText="Please enter a valid e-mail address"
+                                        onInputChange={inputChangeHandler}
+                                        initialValue=""
+                                    />
+                                    <Input
+                                        id="password"
+                                        label="Password"
+                                        keyboardType="default"
+                                        secureTextEntry
+                                        required
+                                        minLength={5}
+                                        autoCapitalize="none"
+                                        errorText="Please enter a valid password"
+                                        onInputChange={inputChangeHandler}
+                                        initialValue=""
+                                    />
+
+                                    <View style={styles.buttonContainer}>
+                                        {isLoading ? (
+                                            <ActivityIndicator size="small" color={Colors.primary} />
+                                        ) : (
+                                            <Button
+                                                title={isSignup ? 'Sign Up' : 'Login'}
+                                                color={Colors.primary}
+                                                onPress={authHandler}
+                                            />
+                                        )}
+                                    </View>
+                                    <View style={styles.buttonContainer}>
+                                        <Button
+                                            title={`Switch to ${isSignup ? 'Login' : 'Sign Up'}`}
+                                            color={Colors.accent}
+                                            onPress={() => setIsSignup(!isSignup)}
+                                        />
+                                    </View>
+                                </ScrollView>
+                            </Card>
+                        </LinearGradient>
+                    </KeyboardAvoidingView>
+                );
+            }
+
+            AuthScreen.navigationOptions = {
+                headerTitle: 'Authenticate',
+            };
+
+            const styles = StyleSheet.create({
+                screen: {
+                    flex: 1,
+                },
+                gradient: {
+                    flex: 1,
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                },
+                authContainer: {
+                    width: '80%',
+                    maxWidth: 400,
+                    maxHeight: 400,
+                    padding: 20,
+                },
+                buttonContainer: {
+                    marginTop: 10,
+                },
+            });
+
+            export default AuthScreen;
+        ```
+
+<h2 id='actionauth'>Auth Config</h2>
+
+[Go Back to Summary](#summary)
+
+-   create `auth` folder and files redux
+
+```Bash
+    touch store/actions/auth.js store/reducers/auth.js
+```
+
+-   In `store/actions/auth.js`
+
+    -   Since we are using redux-thunk to fetch and dispatch our data
+    -   redux-thunk give us the **dispatch** function to dispatch our actions to reducers
+    -   and redux-thunk also gives us the **getState** as a second argument to get the data from our store
+    -   Sign Up
+        -   Firebase gives us an link to sign up new users we just have to provide our authentication key
+        -   `https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${FIREBASE_KEY}`
+    -   Login
+
+        -   Just like singing up, firebase gives us a link to authenticate users
+        -   `https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${FIREBASE_KEY}`
+
+        ```JavaScript
+            import { FIREBASE_KEY } from 'react-native-dotenv';
+            export const SIGNUP = 'SIGNUP';
+            export const LOGIN = 'LOGIN';
+
+            export const signup = (email, password) => {
+                return async (dispatch) => {
+                    try {
+                        const response = await fetch(
+                            `https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=${FIREBASE_KEY}`,
+                            {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                },
+                                body: JSON.stringify({
+                                    email,
+                                    password,
+                                    returnSecureToken: true,
+                                }),
+                            },
+                        );
+
+                        if (!response.ok) {
+                            const errorResData = await response.json();
+                            const errorId = errorResData.error.message;
+                            let message;
+
+                            switch (errorId) {
+                                case 'EMAIL_EXISTS':
+                                    message = 'This email exists already!';
+
+                                    break;
+                                default:
+                                    message = 'Something went wrong';
+
+                                    break;
+                            }
+
+                            throw new Error(message);
+                        }
+
+                        const resData = await response.json();
+
+                        dispatch({
+                            type: SIGNUP,
+                            token: resData.idToken,
+                            userId: resData.localId,
+                        });
+                    } catch (error) {
+                        throw error;
+                    }
+                };
+            };
+
+            export const login = (email, password) => {
+                return async (dispatch) => {
+                    try {
+                        const response = await fetch(
+                            `https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${FIREBASE_KEY}`,
+                            {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                },
+                                body: JSON.stringify({
+                                    email,
+                                    password,
+                                    returnSecureToken: true,
+                                }),
+                            },
+                        );
+
+                        if (!response.ok) {
+                            const errorResData = await response.json();
+                            const errorId = errorResData.error.message;
+                            let message;
+
+                            switch (errorId) {
+                                case 'EMAIL_NOT_FOUND':
+                                    message = 'This email could not be found!';
+
+                                    break;
+                                case 'INVALID_PASSWORD':
+                                    message = 'This password is not valid!';
+                                    break;
+                                default:
+                                    message = 'Something went wrong';
+
+                                    break;
+                            }
+
+                            throw new Error(message);
+                        }
+
+                        const resData = await response.json();
+                        dispatch({
+                            type: LOGIN,
+                            token: resData.idToken,
+                            userId: resData.localId,
+                        });
+                    } catch (error) {
+                        throw error;
+                    }
+                };
+            };
+        ```
+
+-   in `store/reducers/auth.js`
+
+    -   We get our **token** and **userId** that we defined on the login/signup methods in our actions
+
+        ```JavaScript
+            import { LOGIN, SIGNUP } from '../actions/auth';
+
+            const initialState = {
+                token: null,
+                userId: null,
+            };
+
+            const authReducer = (state = initialState, action) => {
+                switch (action.type) {
+                    case LOGIN:
+                        return {
+                            token: action.token,
+                            userId: action.userId,
+                        };
+                    case SIGNUP:
+                        return {
+                            token: action.token,
+                            userId: action.userId,
+                        };
+                    default:
+                        return state;
+                }
+            };
+
+            export default authReducer;
+        ```

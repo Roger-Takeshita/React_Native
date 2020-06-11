@@ -79,7 +79,7 @@ function EditProductScreen({ navigation }) {
 
     const submitHandler = useCallback(async () => {
         if (!formState.formIsValid) {
-            Alert.alert('Wrong input!', 'Please check the errors in the form.', [{ text: 'Okay' }]);
+            Alert.alert('Wrong input!', 'Please check the errors in the form.', [{ text: 'Ok' }]);
             return;
         }
 

@@ -5,28 +5,39 @@ export const UPDATE_PRODUCT = 'UPDATE_PRODUCT';
 export const SET_PRODUCTS = 'SET_PRODUCTS';
 
 export const deleteProduct = (productId) => {
-    return async (dispatch) => {
-        const response = await fetch(`https://react-native-7b3b3.firebaseio.com/products/${productId}.json`, {
-            method: 'DELETE',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-        });
+    return async (dispatch, getState) => {
+        const token = getState().auth.token;
 
-        if (!response.ok) {
-            throw new Error('Something went wrong!');
+        try {
+            const response = await fetch(
+                `https://react-native-7b3b3.firebaseio.com/products/${productId}.json?auth=${token}`,
+                {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                },
+            );
+
+            if (!response.ok) {
+                throw new Error('Something went wrong!');
+            }
+
+            dispatch({
+                type: DELETE_PRODUCT,
+                productId,
+            });
+        } catch (error) {
+            throw error;
         }
-
-        dispatch({
-            type: DELETE_PRODUCT,
-            productId,
-        });
     };
 };
 
 export const fetchProducts = () => {
-    try {
-        return async (dispatch) => {
+    return async (dispatch, getState) => {
+        const userId = getState().auth.userId;
+
+        try {
             const response = await fetch('https://react-native-7b3b3.firebaseio.com/products.json');
 
             if (!response.ok) {
@@ -40,7 +51,7 @@ export const fetchProducts = () => {
                 loadedProducts.push(
                     new Product(
                         key,
-                        'u1',
+                        resData[key].ownerId,
                         resData[key].title,
                         resData[key].imageUrl,
                         resData[key].description,
@@ -52,27 +63,42 @@ export const fetchProducts = () => {
             dispatch({
                 type: SET_PRODUCTS,
                 products: loadedProducts,
+                userProducts: loadedProducts.filter((prod) => prod.ownerId === userId),
             });
-        };
-    } catch (error) {
-        //! Send to custom analytics server
-        throw error;
-    }
+        } catch (error) {
+            //! Send to custom analytics server
+            throw error;
+        }
+    };
 };
 
 export const createProduct = (title, description, imageUrl, price) => {
-    try {
-        return async (dispatch) => {
-            //! Any async code here
-            const response = await fetch('https://react-native-7b3b3.firebaseio.com/products.json', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
+    return async (dispatch, getState) => {
+        //! Any async code here
+        const token = getState().auth.token;
+        const userId = getState().auth.userId;
+
+        try {
+            const response = await fetch(
+                `https://react-native-7b3b3.firebaseio.com/products.json?auth=${token}`,
+                {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        title,
+                        description,
+                        imageUrl,
+                        price,
+                        ownerId: userId,
+                    }),
                 },
-                body: JSON.stringify({ title, description, imageUrl, price }),
-            });
+            );
 
             if (!response.ok) {
+                const errorData = await response.json();
+                console.log(JSON.stringify(errorData, undefined, 4));
                 throw new Error('Something went wrong!');
             }
 
@@ -87,19 +113,22 @@ export const createProduct = (title, description, imageUrl, price) => {
                     description,
                     imageUrl,
                     price,
+                    ownerId: userId,
                 },
             });
-        };
-    } catch (error) {
-        throw error;
-    }
+        } catch (error) {
+            throw error;
+        }
+    };
 };
 
 export const updateProduct = (productId, title, description, imageUrl) => {
-    try {
-        return async (dispatch) => {
+    return async (dispatch, getState) => {
+        const token = getState().auth.token;
+
+        try {
             const response = await fetch(
-                `https://react-native-7b3b3.firebaseio.com/products/${productId}.json`,
+                `https://react-native-7b3b3.firebaseio.com/products/${productId}.json?auth=${token}`,
                 {
                     method: 'PATCH',
                     headers: {
@@ -122,8 +151,8 @@ export const updateProduct = (productId, title, description, imageUrl) => {
                     imageUrl,
                 },
             });
-        };
-    } catch (error) {
-        throw error;
-    }
+        } catch (error) {
+            throw error;
+        }
+    };
 };

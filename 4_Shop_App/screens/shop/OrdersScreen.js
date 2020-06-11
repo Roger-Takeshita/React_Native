@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { View, Text, FlatList, Platform, StyleSheet, ActivityIndicator } from 'react-native';
+import { View, Text, FlatList, Platform, StyleSheet, ActivityIndicator, Button } from 'react-native';
 import { useSelector, useDispatch } from 'react-redux';
 import { HeaderButtons, Item } from 'react-navigation-header-buttons';
 
@@ -38,7 +38,7 @@ function OrdersScreen(props) {
         return (
             <View style={styles.centered}>
                 <Text>An error ocurred!</Text>
-                <Button title="Try again" onPress={loadProducts} color={Colors.primary} />
+                <Button title="Try again" onPress={loadOrders} color={Colors.primary} />
             </View>
         );
     }
@@ -55,6 +55,14 @@ function OrdersScreen(props) {
         return (
             <View style={styles.centered}>
                 <Text>No orders found. Maybe start adding some!</Text>
+            </View>
+        );
+    }
+
+    if (orders.length === 0) {
+        return (
+            <View style={styles.errorContainer}>
+                <Text>No orders found, maybe start ordering some products?</Text>
             </View>
         );
     }
@@ -96,6 +104,11 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
+    },
+    errorContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignContent: 'center',
     },
 });
 

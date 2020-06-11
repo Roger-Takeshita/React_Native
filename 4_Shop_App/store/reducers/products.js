@@ -1,10 +1,9 @@
-import PRODUCTS from '../../database/dummy-data';
 import { DELETE_PRODUCT, CREATE_PRODUCT, UPDATE_PRODUCT, SET_PRODUCTS } from '../actions/products';
 import Product from '../../models/product';
 
 const initialState = {
-    availableProducts: PRODUCTS,
-    userProducts: PRODUCTS.filter((product) => product.ownerId === 'u1'),
+    availableProducts: [],
+    userProducts: [],
 };
 
 const productsReducer = (state = initialState, action) => {
@@ -12,20 +11,12 @@ const productsReducer = (state = initialState, action) => {
         case SET_PRODUCTS:
             return {
                 availableProducts: action.products,
-                userProducts: action.products.filter((prod) => prod.ownerId === 'u1'),
-            };
-        case DELETE_PRODUCT:
-            return {
-                ...state,
-                userProducts: state.userProducts.filter((product) => product.id !== action.productId),
-                availableProducts: state.availableProducts.filter(
-                    (product) => product.id !== action.productId,
-                ),
+                userProducts: action.userProducts,
             };
         case CREATE_PRODUCT:
             const newProduct = new Product(
-                new Date().toString(),
-                'u1',
+                action.productData.id,
+                action.productData.ownerId,
                 action.productData.title,
                 action.productData.imageUrl,
                 action.productData.description,
@@ -57,6 +48,14 @@ const productsReducer = (state = initialState, action) => {
             return {
                 availableProducts: updatedAvailableProducts,
                 userProducts: updatedUserProducts,
+            };
+        case DELETE_PRODUCT:
+            return {
+                ...state,
+                userProducts: state.userProducts.filter((product) => product.id !== action.productId),
+                availableProducts: state.availableProducts.filter(
+                    (product) => product.id !== action.productId,
+                ),
             };
         default:
             return state;
