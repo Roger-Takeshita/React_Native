@@ -22,6 +22,7 @@
     -   [When The App Launches](#whenapplaunches)
         -   [Authentication Screen](#authscreen)
     -   [Auth Config](#actionauth)
+-   [Local Storage - AsyncStorage](#localstorage)
 
 <h1 id='shopapp'>Shop App</h1>
 
@@ -905,3 +906,69 @@
 
             export default authReducer;
         ```
+
+<h1 id='localstorage'>Local Storage - AsyncStorage</h1>
+
+[Go Back to Summary](#summary)
+
+-   In `store/actions/auth.js`
+
+    -   Import **AsyncStorage** from `react-native`
+        -   `removeItem('key')` to remove key/value from local storage
+        -   `setItem('key', 'value')` to add key/value pair in the local storage
+            -   It has to be a string, so we have to JSON.stringify()
+        -   `getItem('key')` to get an item from local storage
+
+    ```JavaScript
+      import { AsyncStorage } from 'react-native';
+      import { FIREBASE_KEY } from 'react-native-dotenv';
+      export const AUTHENTICATE = 'AUTHENTICATE';
+      export const LOGOUT = 'LOGOUT';
+      let timer;
+
+      export const authenticate = (userId, token, expiryTime) => {
+          return (dispatch) => {
+              dispatch(setLogoutTimer(expiryTime));
+              dispatch({ type: AUTHENTICATE, userId, token });
+          };
+      };
+
+      export const signup = (email, password) => {
+          return async (dispatch) => {...};
+      };
+
+      export const login = (email, password) => {
+          return async (dispatch) => {...};
+      };
+
+      export const logout = () => {
+          clearLogoutTimer();
+          AsyncStorage.removeItem('userData');
+          return { type: LOGOUT };
+      };
+
+      const clearLogoutTimer = () => {
+          if (timer) {
+              clearTimeout(timer);
+          }
+      };
+
+      const setLogoutTimer = (expirationTime) => {
+          return (dispatch) => {
+              timer = setTimeout(() => {
+                  dispatch(logout());
+              }, expirationTime);
+          };
+      };
+
+      const saveDataToStorage = (token, userId, expirationDate) => {
+          AsyncStorage.setItem(
+              'userData',
+              JSON.stringify({
+                  token,
+                  userId,
+                  expiryDate: expirationDate.toISOString(),
+              }),
+          );
+      };
+    ```
