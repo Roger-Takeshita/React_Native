@@ -1,6 +1,7 @@
 const ADD_PLACE = 'ADD_PLACE';
 const SET_PLACES = 'SET_PLACES';
 import * as FileSystem from 'expo-file-system';
+import ENV from '../env';
 import { fetchPlaces, insertPlace } from '../helpers/db';
 import Place from '../models/place';
 
@@ -8,6 +9,7 @@ export const loadPlaces = () => {
     try {
         return async (dispatch) => {
             const dbResult = await fetchPlaces();
+
             dispatch({
                 type: SET_PLACES,
                 places: dbResult.rows._array,
@@ -19,8 +21,25 @@ export const loadPlaces = () => {
     }
 };
 
-export const addPlace = (title, imageUri) => {
+export const addPlace = (title, imageUri, location) => {
     return async (dispatch) => {
+        const response = await fetch(
+            `https://maps.googleapis.com/maps/api/geocode/json?latlng=${location.lat},${location.lng}&key=${
+                ENV().googleApiKey
+            }`,
+        );
+
+        if (!response.ok) {
+            throw new Error('Something went wrong');
+        }
+
+        const resData = await response.json();
+
+        if (!resData.results) {
+            throw new Error('Something went wrong');
+        }
+
+        const address = resData.results[0].formatted_address;
         const fileName = imageUri.split('/').pop();
         const newPath = FileSystem.documentDirectory + fileName;
 
@@ -30,7 +49,7 @@ export const addPlace = (title, imageUri) => {
                 to: newPath,
             });
 
-            const dbResult = await insertPlace(title, newPath, 'Dummy address', 15.6, 12.3);
+            const dbResult = await insertPlace(title, newPath, address, location.lat, location.lng);
 
             dispatch({
                 type: ADD_PLACE,
@@ -38,6 +57,11 @@ export const addPlace = (title, imageUri) => {
                     id: dbResult.insertId,
                     title,
                     imageUri: newPath,
+                    address,
+                    coords: {
+                        lat: location.lat,
+                        lng: location.lng,
+                    },
                 },
             });
         } catch (error) {
@@ -56,7 +80,15 @@ const placesReducer = (state = initialState, action) => {
         case SET_PLACES:
             return {
                 places: action.places.map(
-                    (place) => new Place(place.id.toString(), place.title, place.imageUri),
+                    (place) =>
+                        new Place(
+                            place.id.toString(),
+                            place.title,
+                            place.imageUri,
+                            place.address,
+                            place.lat,
+                            place.lng,
+                        ),
                 ),
             };
         case ADD_PLACE:
@@ -64,6 +96,9 @@ const placesReducer = (state = initialState, action) => {
                 action.placeData.id.toString(),
                 action.placeData.title,
                 action.placeData.imageUri,
+                action.placeData.address,
+                action.placeData.coords.lat,
+                action.placeData.coords.lng,
             );
             return {
                 places: state.places.concat(newPlace),

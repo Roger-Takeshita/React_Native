@@ -22,7 +22,7 @@ function PlacesListScreen({ navigation }) {
                 <PlaceItem
                     image={data.item.imageUri}
                     title={data.item.title}
-                    address={null}
+                    address={data.item.address}
                     onSelect={() =>
                         navigation.navigate('PlaceDetail', {
                             placeTitle: data.item.title,
