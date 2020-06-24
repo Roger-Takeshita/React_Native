@@ -1,19 +1,19 @@
 {
   "expo": {
-    "name": "5_great_places",
-    "slug": "5_great_places",
+    "name": "Great Places",
+    "slug": "great-places",
+    "privacy": "public",
     "platforms": [
       "ios",
-      "android",
-      "web"
+      "android"
     ],
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "icon": "./assets/places.png",
     "splash": {
-      "image": "./assets/splash.png",
+      "image": "./assets/splash_icon.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#171717"
     },
     "updates": {
       "fallbackToCacheTimeout": 0
@@ -22,7 +22,27 @@
       "**/*"
     ],
     "ios": {
-      "supportsTablet": true
+        "bundleIdentifier": "com.rogertakeshita.great-places",
+        "buildNumber": "1.0.0",
+        "supportsTablet": true
+    },
+    "android": {
+      "package": "com.rogertakeshita.great_places",
+      "versionCode": 1,
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/places-adaptive.png",
+        "backgroundColor": "#171717"
+      },
+      "permissions":[
+        "ACCESS_FINE_LOCATION",
+        "CAMERA",
+        "WRITE_EXTERNAL_STORAGE"
+      ],
+      "config": {
+        "googleMaps": {
+          "apiKey": "AIzaSyDGHR5yD8R0XLdQ7uUQchxUB2X3uOU72c8"
+        }
+      }
     }
   }
 }
