@@ -1,11 +1,10 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { View, Text, FlatList, Platform, StyleSheet, ActivityIndicator, Button } from 'react-native';
-import { useSelector, useDispatch } from 'react-redux';
+import React, { useCallback, useEffect, useState } from 'react';
+import { ActivityIndicator, Button, FlatList, Platform, StyleSheet, Text, View } from 'react-native';
 import { HeaderButtons, Item } from 'react-navigation-header-buttons';
-
-import Colors from '../../css/Colors';
-import CustomHeaderButton from '../../components/UI/CustomHeaderButton';
+import { useDispatch, useSelector } from 'react-redux';
 import OrderItem from '../../components/shop/OrderItem';
+import CustomHeaderButton from '../../components/UI/CustomHeaderButton';
+import Colors from '../../css/Colors';
 import * as ordersActions from '../../store/actions/orders';
 
 function OrdersScreen(props) {
@@ -84,7 +83,7 @@ function OrdersScreen(props) {
     );
 }
 
-OrdersScreen.navigationOptions = (data) => {
+export const screenOptions = (data) => {
     return {
         headerTitle: 'Your Orders',
         headerLeft: () => (

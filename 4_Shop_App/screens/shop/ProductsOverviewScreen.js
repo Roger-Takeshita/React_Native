@@ -1,13 +1,12 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { View, Text, FlatList, Platform, Button, ActivityIndicator, StyleSheet } from 'react-native';
-import { useSelector, useDispatch } from 'react-redux';
+import React, { useCallback, useEffect, useState } from 'react';
+import { ActivityIndicator, Button, FlatList, Platform, StyleSheet, Text, View } from 'react-native';
 import { HeaderButtons, Item } from 'react-navigation-header-buttons';
-
-import CustomHeaderButton from '../../components/UI/CustomHeaderButton';
+import { useDispatch, useSelector } from 'react-redux';
 import ProductItem from '../../components/shop/ProductItem';
+import CustomHeaderButton from '../../components/UI/CustomHeaderButton';
+import Colors from '../../css/Colors';
 import * as cartActions from '../../store/actions/cart';
 import * as productsActions from '../../store/actions/products';
-import Colors from '../../css/Colors';
 
 function ProductsOverviewScreen({ navigation }) {
     const products = useSelector((state) => state.products.availableProducts);
@@ -36,11 +35,11 @@ function ProductsOverviewScreen({ navigation }) {
     }, [dispatch, loadProducts]);
 
     useEffect(() => {
-        const willFocusSub = navigation.addListener('willFocus', () => {
+        const unsubscribe = navigation.addListener('focus', () => {
             loadProducts();
         });
         return () => {
-            willFocusSub.remove();
+            unsubscribe();
         };
     }, [loadProducts]);
 
@@ -105,7 +104,7 @@ function ProductsOverviewScreen({ navigation }) {
     );
 }
 
-ProductsOverviewScreen.navigationOptions = (data) => {
+export const screenOptions = (data) => {
     return {
         headerTitle: 'All Products',
         headerLeft: () => (

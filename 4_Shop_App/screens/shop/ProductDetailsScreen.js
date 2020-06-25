@@ -1,12 +1,11 @@
 import React from 'react';
-import { useSelector, useDispatch } from 'react-redux';
-import { View, Text, StyleSheet, Image, Button, ScrollView } from 'react-native';
-
+import { Button, Image, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useDispatch, useSelector } from 'react-redux';
 import Colors from '../../css/Colors';
 import * as cartActions from '../../store/actions/cart';
 
-function ProductDetailsScreen({ navigation }) {
-    const productId = navigation.getParam('productId');
+function ProductDetailsScreen({ navigation, route }) {
+    const productId = route.params.productId;
     const selectedProduct = useSelector((state) =>
         state.products.availableProducts.find((prod) => prod.id === productId),
     );
@@ -28,9 +27,9 @@ function ProductDetailsScreen({ navigation }) {
     );
 }
 
-ProductDetailsScreen.navigationOptions = (data) => {
+export const screenOptions = (data) => {
     return {
-        headerTitle: data.navigation.getParam('productTitle'),
+        headerTitle: data.route.params.productTitle,
     };
 };
 

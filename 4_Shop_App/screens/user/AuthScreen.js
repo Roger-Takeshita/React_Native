@@ -1,18 +1,17 @@
-import React, { useState, useReducer, useCallback, useEffect } from 'react';
+import { LinearGradient } from 'expo-linear-gradient';
+import React, { useCallback, useEffect, useReducer, useState } from 'react';
 import {
-    View,
-    StyleSheet,
-    ScrollView,
-    KeyboardAvoidingView,
-    Button,
     ActivityIndicator,
     Alert,
+    Button,
+    KeyboardAvoidingView,
+    ScrollView,
+    StyleSheet,
+    View,
 } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
 import { useDispatch } from 'react-redux';
-
-import Input from '../../components/UI/Input';
 import Card from '../../components/UI/Card';
+import Input from '../../components/UI/Input';
 import Colors from '../../css/Colors';
 import * as authActions from '../../store/actions/auth';
 
@@ -83,7 +82,6 @@ function AuthScreen({ navigation }) {
 
         try {
             await dispatch(action);
-            navigation.navigate('Shop');
         } catch (error) {
             setError(error.message);
             setIsLoading(false);
@@ -156,7 +154,7 @@ function AuthScreen({ navigation }) {
     );
 }
 
-AuthScreen.navigationOptions = {
+export const screenOptions = {
     headerTitle: 'Authenticate',
 };
 

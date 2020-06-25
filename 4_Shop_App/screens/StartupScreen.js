@@ -12,7 +12,7 @@ function StartupScreen({ navigation }) {
             const userData = await AsyncStorage.getItem('userData');
 
             if (!userData) {
-                navigation.navigate('Auth');
+                dispatch(authActions.setDidTryAL());
                 return;
             }
 
@@ -21,13 +21,12 @@ function StartupScreen({ navigation }) {
             const expirationDate = new Date(expiryDate);
 
             if (expirationDate <= new Date() || !token || !userId) {
-                navigation.navigate('Auth');
+                dispatch(authActions.setDidTryAL());
                 return;
             }
 
             const expirationTime = expirationDate.getTime() - new Date().getTime();
 
-            navigation.navigate('Shop');
             dispatch(authActions.authenticate(userId, token, expirationTime));
         };
 

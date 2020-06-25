@@ -1,12 +1,11 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, FlatList, Button, ActivityIndicator } from 'react-native';
-import { useSelector, useDispatch } from 'react-redux';
-
-import Colors from '../../css/Colors';
+import { ActivityIndicator, Button, FlatList, StyleSheet, Text, View } from 'react-native';
+import { useDispatch, useSelector } from 'react-redux';
 import CartItem from '../../components/shop/CartItem';
+import Card from '../../components/UI/Card';
+import Colors from '../../css/Colors';
 import * as cartActions from '../../store/actions/cart';
 import * as ordersActions from '../../store/actions/orders';
-import Card from '../../components/UI/Card';
 
 function CartScreen(props) {
     const [isLoading, setIsLoading] = useState(false);
@@ -87,7 +86,7 @@ function CartScreen(props) {
     );
 }
 
-CartScreen.navigationOptions = {
+export const screenOptions = {
     headerTitle: 'Your Cart',
 };
 

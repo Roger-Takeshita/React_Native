@@ -1,20 +1,19 @@
-import React, { useState, useEffect, useCallback, useReducer } from 'react';
+import React, { useCallback, useEffect, useReducer, useState } from 'react';
 import {
-    View,
-    StyleSheet,
-    ScrollView,
-    Platform,
+    ActivityIndicator,
     Alert,
     KeyboardAvoidingView,
-    ActivityIndicator,
+    Platform,
+    ScrollView,
+    StyleSheet,
+    View,
 } from 'react-native';
 import { HeaderButtons, Item } from 'react-navigation-header-buttons';
-import { useSelector, useDispatch } from 'react-redux';
-
-import Input from '../../components/UI/Input';
+import { useDispatch, useSelector } from 'react-redux';
 import CustomHeaderButton from '../../components/UI/CustomHeaderButton';
-import * as productsActions from '../../store/actions/products';
+import Input from '../../components/UI/Input';
 import Colors from '../../css/Colors';
+import * as productsActions from '../../store/actions/products';
 
 const FORM_INPUT_UPDATE = 'FORM_INPUT_UPDATE';
 
@@ -45,11 +44,11 @@ const formReducer = (state, action) => {
     }
 };
 
-function EditProductScreen({ navigation }) {
+function EditProductScreen({ navigation, route }) {
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState();
 
-    const productId = navigation.getParam('productId');
+    const productId = route.params ? route.params.productId : null;
     const editedProduct = useSelector((state) =>
         state.products.userProducts.find((prod) => prod.id === productId),
     );
@@ -115,7 +114,17 @@ function EditProductScreen({ navigation }) {
     }, [dispatch, productId, formState]);
 
     useEffect(() => {
-        navigation.setParams({ submit: submitHandler });
+        navigation.setOptions({
+            headerRight: () => (
+                <HeaderButtons HeaderButtonComponent={CustomHeaderButton}>
+                    <Item
+                        title="Save"
+                        iconName={Platform.OS === 'android' ? 'md-checkmark' : 'ios-checkmark'}
+                        onPress={submitHandler}
+                    />
+                </HeaderButtons>
+            ),
+        });
     }, [submitHandler]);
 
     const inputChangeHandler = useCallback(
@@ -199,20 +208,11 @@ function EditProductScreen({ navigation }) {
     );
 }
 
-EditProductScreen.navigationOptions = (data) => {
-    const submitFunction = data.navigation.getParam('submit');
+export const screenOptions = (data) => {
+    const routeParams = data.route.params ? data.route.params : {};
 
     return {
-        headerTitle: data.navigation.getParam('productId') ? 'Edit Product' : 'Add Product',
-        headerRight: () => (
-            <HeaderButtons HeaderButtonComponent={CustomHeaderButton}>
-                <Item
-                    title="Save"
-                    iconName={Platform.OS === 'android' ? 'md-checkmark' : 'ios-checkmark'}
-                    onPress={submitFunction}
-                />
-            </HeaderButtons>
-        ),
+        headerTitle: routeParams.productId ? 'Edit Product' : 'Add Product',
     };
 };
 

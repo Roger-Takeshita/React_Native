@@ -1,12 +1,11 @@
 import React from 'react';
-import { View, Text, FlatList, Button, Alert, StyleSheet } from 'react-native';
-import { useSelector, useDispatch } from 'react-redux';
+import { Alert, Button, FlatList, StyleSheet, Text, View } from 'react-native';
 import { HeaderButtons, Item } from 'react-navigation-header-buttons';
-import * as productsActions from '../../store/actions/products';
-
-import CustomHeaderButton from '../../components/UI/CustomHeaderButton';
+import { useDispatch, useSelector } from 'react-redux';
 import ProductItem from '../../components/shop/ProductItem';
+import CustomHeaderButton from '../../components/UI/CustomHeaderButton';
 import Colors from '../../css/Colors';
+import * as productsActions from '../../store/actions/products';
 
 function UserProductsScreen({ navigation }) {
     const userProducts = useSelector((state) => state.products.userProducts);
@@ -64,7 +63,7 @@ function UserProductsScreen({ navigation }) {
     );
 }
 
-UserProductsScreen.navigationOptions = (data) => {
+export const screenOptions = (data) => {
     return {
         headerTitle: 'Your Products',
         headerLeft: () => (
